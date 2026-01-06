@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PasteVisibility {
+  public
+  unlisted
+  private
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  pastes    Paste[]
+}
+
+model Paste {
+  id         String          @id @default(uuid())
+  title      String?
+  content    String
+  visibility PasteVisibility @default(public)
+  expiresAt  DateTime?
+  userId     String
+  createdAt  DateTime        @default(now())
+  user       User            @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([visibility])
+}
