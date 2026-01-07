@@ -6,7 +6,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import authRoutes from "./routes/auth.route";
 import { generateOpenAPIDocument } from "./docs/swagger";
-
+import { errorHandlerMiddleware } from "./middlewares/error.middleware";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -62,18 +62,6 @@ app.use((req, res) => {
   });
 });
 
-app.use(
-  (
-    err: Error,
-    _req: express.Request,
-    res: express.Response,
-    _next: express.NextFunction
-  ) => {
-    console.error(err);
-    res.status(500).json({
-      message: "Internal Server error",
-    });
-  }
-);
+app.use(errorHandlerMiddleware);
 
 export default app;

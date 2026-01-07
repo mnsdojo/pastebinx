@@ -3,6 +3,7 @@ import { prisma } from "../lib/prisma";
 
 import bcrypt from "bcrypt";
 import { signJwt } from "../lib/jwt";
+import { AppError } from "../utils/AppError";
 export class AuthService {
   static async register(data: RegisterInput) {
     const { username, email, password } = data;
@@ -12,7 +13,7 @@ export class AuthService {
       },
     });
     if (existingUser) {
-      throw new Error("User already exists");
+      throw new AppError("User already exists");
     }
     const hashedPassword = await bcrypt.hash(password, 12);
     const user = await prisma?.user.create({
@@ -38,11 +39,11 @@ export class AuthService {
   static async login(data: LoginInput) {
     const { email, password } = data;
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) throw new Error("Invalid email or password");
+    if (!user) throw new AppError("Invalid email or password");
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      throw new Error("Invalid email or password");
+      throw new AppError("Invalid email or password");
     }
 
     // 3️⃣ Issue JWT
@@ -68,7 +69,7 @@ export class AuthService {
         createdAt: true,
       },
     });
-    if (!user) throw new Error("User Not found");
+    if (!user) throw new AppError("User Not found");
     return user;
   }
 }
