@@ -4,3 +4,6 @@ dist
 .env
 
 /src/generated/prisma
+# SSH / keys (never commit)
+*.pem
+*.key
