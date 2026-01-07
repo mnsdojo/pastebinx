@@ -46,7 +46,7 @@ export class PasteService {
         content: data.content,
         visibility: data.visibility ?? "public",
         expiresAt: data.expiresAt ?? null,
-        userId: user?.id ?? null,
+        userId: user?.id ,
       },
     });
     return paste;
