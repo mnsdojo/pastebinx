@@ -3,9 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
   directUrl = env("DIRECT_URL")
-  url      = env("DATABASE_URL")
+  url       = env("DATABASE_URL")
 }
 
 enum PasteVisibility {
@@ -29,9 +29,9 @@ model Paste {
   content    String
   visibility PasteVisibility @default(public)
   expiresAt  DateTime?
-  userId     String
+  userId     String?
   createdAt  DateTime        @default(now())
-  user       User            @relation(fields: [userId], references: [id])
+  user       User?           @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([visibility])

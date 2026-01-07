@@ -30,3 +30,22 @@ export async function requireAuth(
     return res.status(401).json({ message: "Unauthorized" });
   }
 }
+
+export const optionalAuth = async (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+) => {
+  const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    req.user = undefined;
+    return next();
+  }
+  try {
+    const decoded = await verifyJwt(token);
+    req.user = { id: decoded.userId };
+  } catch {
+    req.user = undefined;
+  }
+  next();
+};

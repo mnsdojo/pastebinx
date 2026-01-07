@@ -6,6 +6,8 @@ import helmet from "helmet";
 import morgan from "morgan";
 import authRoutes from "./routes/auth.route";
 import { generateOpenAPIDocument } from "./docs/swagger";
+
+
 const app = express();
 app.set("trust proxy", 1);
 app.disable("x-powered-by");
