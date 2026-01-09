@@ -5,47 +5,74 @@ export interface AuthRequest extends Request {
   user?: { id: string };
 }
 
+/**
+ * 🔐 Middleware: Requires authentication
+ * - Used on protected routes like /me
+ */
 export async function requireAuth(
   req: AuthRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "Missing or invalid token" });
+    // ✅ Must be "Bearer <token>"
+    if (!authHeader || !authHeader.startsWith("Bearer")) {
+      return res.status(401).json({ message: "No token provided" });
     }
 
     const token = authHeader.split(" ")[1];
+
     const payload = await verifyJwt(token);
 
-    if (!payload.sub || typeof payload.sub !== "string") {
+    // ✅ Support both JWT styles
+    const userId = payload.sub || payload.userId;
+
+    if (!userId || typeof userId !== "string") {
       return res.status(401).json({ message: "Invalid token payload" });
     }
 
-    req.user = { id: payload.sub };
+    req.user = { id: userId };
     next();
   } catch (error) {
+    console.error("❌ requireAuth error:", error);
     return res.status(401).json({ message: "Unauthorized" });
   }
 }
 
-export const optionalAuth = async (
-  req: Request,
+/**
+ * 🔓 Middleware: Optional authentication
+ * - Used when login is optional
+ */
+export async function optionalAuth(
+  req: AuthRequest,
   _res: Response,
-  next: NextFunction
-) => {
-  const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
-  if (!token) {
-    req.user = undefined;
-    return next();
-  }
+  next: NextFunction,
+) {
   try {
+    const token =
+      req.cookies?.token || req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      req.user = undefined;
+      return next();
+    }
+
     const decoded = await verifyJwt(token);
-    req.user = { id: decoded.userId };
-  } catch {
+
+    // ✅ Normalize user id
+    const userId = decoded.sub || decoded.userId;
+
+    if (userId && typeof userId === "string") {
+      req.user = { id: userId };
+    } else {
+      req.user = undefined;
+    }
+  } catch (error) {
+    console.warn("⚠️ optionalAuth invalid token");
     req.user = undefined;
   }
+
   next();
-};
+}

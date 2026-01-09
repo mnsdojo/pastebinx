@@ -6,12 +6,8 @@ import { createPasteSchema, getPasteSchema, updatePasteSchema } from "../schemas
 
 const router = Router();
 
-router.get(
-  "/:id",
-  validate(getPasteSchema),
-  optionalAuth,
-  PasteController.getPaste
-);
+router.get("/public", PasteController.getPublicPastes);
+router.get("/me", requireAuth, PasteController.getMyPastes);
 
 router.post(
   "/",
@@ -20,7 +16,12 @@ router.post(
   PasteController.createPaste
 );
 
-router.get("/me", requireAuth, PasteController.getMyPastes);
+router.get(
+  "/:id",
+  validate(getPasteSchema),
+  optionalAuth,
+  PasteController.getPaste
+);
 
 router.put(
   "/:id",
@@ -30,4 +31,5 @@ router.put(
 );
 
 router.delete("/:id", requireAuth, PasteController.deletePaste);
+
 export default router;

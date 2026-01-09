@@ -104,4 +104,50 @@ export class PasteService {
       where: { id },
     });
   }
+
+  static async getPublicPastes(page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+    
+    // Build where clause for public and non-expired pastes
+    const where = {
+      visibility: "public" as PasteVisibility,
+      OR: [
+        { expiresAt: null },
+        { expiresAt: { gt: new Date() } }
+      ]
+    };
+
+    const [pastes, total] = await Promise.all([
+      prisma.paste.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+        include: {
+          user: { select: { id: true, username: true } },
+        },
+      }),
+      prisma.paste.count({ where }),
+    ]);
+
+    return {
+      pastes,
+      metadata: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+  static async deleteExpired() {
+    const { count } = await prisma.paste.deleteMany({
+      where: {
+        expiresAt: {
+          lt: new Date(),
+        },
+      },
+    });
+    return count;
+  }
 }

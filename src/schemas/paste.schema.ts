@@ -9,7 +9,7 @@ export const pasteBaseSchema = {
     .min(1, "Content is required")
     .max(100_000, "Paste is too large"),
 
-  visibility: z.nativeEnum(PasteVisibility).optional(),
+  visibility: z.enum(PasteVisibility).optional(),
 
   expiresAt: z.iso
     .datetime()
@@ -20,7 +20,7 @@ export const pasteBaseSchema = {
 
 export const updatePasteSchema = z.object({
   params: z.object({
-    id: z.string().uuid("Invalid paste id"),
+    id: z.uuid("Invalid paste id"),
   }),
   body: z
     .object({
@@ -31,7 +31,7 @@ export const updatePasteSchema = z.object({
     })
     .refine(
       (data) => Object.keys(data).length > 0,
-      "At least one field must be provided"
+      "At least one field must be provided",
     ),
 });
 
@@ -50,6 +50,6 @@ export const getPasteSchema = z.object({
  */
 export const getUserPastesSchema = z.object({
   params: z.object({
-    userId: z.string().uuid("Invalid user id"),
+    userId: z.uuid("Invalid user id"),
   }),
 });

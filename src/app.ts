@@ -5,6 +5,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import authRoutes from "./routes/auth.route";
+import pasteRoutes from "./routes/paste.route";
 import { generateOpenAPIDocument } from "./docs/swagger";
 import { errorHandlerMiddleware } from "./middlewares/error.middleware";
 
@@ -17,7 +18,7 @@ app.use(
     crossOriginResourcePolicy: {
       policy: "cross-origin",
     },
-  })
+  }),
 );
 
 const allowedOrigins = (process.env.CORS_ORIGIN || "")
@@ -37,7 +38,7 @@ app.use(
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-  })
+  }),
 );
 
 app.use(express.json({ limit: "1mb" }));
@@ -56,6 +57,7 @@ app.get("/health", (_, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/pastes", pasteRoutes);
 app.use((req, res) => {
   res.status(404).json({
     message: "Route not found",

@@ -12,6 +12,14 @@ export class PasteController {
     const paste = await PasteService.create(req.body, req.user);
     res.status(201).json(paste);
   });
+
+  static getPublicPastes = asyncHandler(async (req: Request, res: Response) => {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const result = await PasteService.getPublicPastes(page, limit);
+    res.json(result);
+  });
+
   static getMyPastes = asyncHandler(async (req: Request, res: Response) => {
     if (!req.user) {
       return res.status(401).json({ message: "Authentication required" });

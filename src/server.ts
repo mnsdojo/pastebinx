@@ -1,9 +1,11 @@
 import app from "./app";
 import { prisma } from "./lib/prisma";
+import { initCronJobs } from "./lib/cron";
 
 const PORT = process.env.PORT || 4000;
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server started on port ${PORT}`);
+  initCronJobs();
 });
 
 const shutdown = (signal: string) => {
